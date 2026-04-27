@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquiteto Pessoal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a08;
+    --surface: #111110;
+    --surface2: #1a1a17;
+    --border: #2a2a25;
+    --accent: #c8a96e;
+    --accent2: #7ecba1;
+    --accent3: #e07070;
+    --text: #e8e4d9;
+    --muted: #666658;
+    --dim: #444438;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.5;
+  }
+
+  .app {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px;
+  }
+
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-left h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--text);
+  }
+
+  .header-left h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .header-left .tagline {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .week-badge {
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: right;
+    line-height: 1.8;
+  }
+
+  .week-badge span {
+    display: block;
+    font-size: 1.4rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  /* STATUS BAR */
+  .status-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+
+  .status-item {
+    background: var(--surface);
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .status-item::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px;
+    width: var(--fill, 0%);
+    background: var(--color);
+    transition: width 1s ease;
+  }
+
+  .status-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .status-value {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--color);
+  }
+
+  .status-sub {
+    font-size: 0.65rem;
+    color: var(--dim);
+    margin-top: 4px;
+  }
+
+  /* MAIN GRID */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .grid-full { grid-column: 1 / -1; }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+  }
+
+  .card-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-label::before {
+    content: '';
+    width: 16px;
+    height: 1px;
+    background: var(--accent);
+  }
+
+  /* PILLAR TRACKER */
+  .pillars {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .pillar {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .pillar-name {
+    font-size: 0.72rem;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .pillar-bar {
+    height: 4px;
+    background: var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pillar-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: var(--w, 0%);
+    background: var(--c);
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .pillar-dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .dot.filled { background: var(--c); border-color: var(--c); }
+  .dot:hover { transform: scale(1.3); }
+
+  /* LOG ENTRY */
+  .log-form { display: flex; flex-direction: column; gap: 12px; }
+
+  .log-textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    padding: 14px;
+    resize: none;
+    height: 80px;
+    transition: border-color 0.2s;
+    outline: none;
+    line-height: 1.6;
+  }
+
+  .log-textarea::placeholder { color: var(--dim); }
+  .log-textarea:focus { border-color: var(--accent); }
+
+  .log-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn:hover { border-color: var(--text); color: var(--text); }
+
+  .btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    font-weight: 500;
+  }
+
+  .btn-primary:hover { background: var(--text); border-color: var(--text); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* AI ANALYSIS */
+  .ai-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 20px;
+    margin-top: 16px;
+    position: relative;
+    min-height: 80px;
+  }
+
+  .ai-block.loading::after {
+    content: '▋';
+    animation: blink 0.8s infinite;
+    color: var(--accent);
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .ai-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ai-label::before {
+    content: '◆';
+    font-size: 0.5rem;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .ai-text {
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  /* HISTORY */
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+
+  .history-list::-webkit-scrollbar { width: 2px; }
+  .history-list::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .history-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .history-item:last-child { border-bottom: none; }
+
+  .history-date {
+    font-size: 0.6rem;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  .history-text {
+    font-size: 0.72rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .history-tag {
+    display: inline-block;
+    font-size: 0.55rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    margin-top: 4px;
+    border: 1px solid;
+  }
+
+  /* SUNDAY REVIEW */
+  .review-questions { display: flex; flex-direction: column; gap: 16px; }
+
+  .review-q {
+    padding: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+
+  .review-q-text {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .review-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    width: 100%;
+    padding: 6px 0;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .review-input:focus { border-color: var(--accent); }
+  .review-input::placeholder { color: var(--dim); }
+
+  /* IMPULSE SHIELD */
+  .shield {
+    border: 1px solid var(--accent3);
+    background: rgba(224, 112, 112, 0.04);
+    padding: 20px;
+  }
+
+  .shield-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .shield-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent3);
+    letter-spacing: 0.05em;
+  }
+
+  .shield-timer {
+    font-size: 2rem;
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    color: var(--accent3);
+    display: none;
+    letter-spacing: -0.02em;
+  }
+
+  .shield-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .shield-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    transition: color 0.3s;
+  }
+
+  .shield-step.active { color: var(--accent3); }
+
+  .shield-step-num {
+    width: 18px; height: 18px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.55rem;
+    flex-shrink: 0;
+  }
+
+  /* WEEKLY PULSE */
+  .pulse-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+
+  .pulse-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .pulse-day-label {
+    font-size: 0.55rem;
+    color: var(--dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .pulse-cell {
+    width: 100%;
+    aspect-ratio: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.6rem;
+    color: var(--dim);
+  }
+
+  .pulse-cell:hover { border-color: var(--accent); color: var(--accent); }
+  .pulse-cell.has-log { background: rgba(200, 169, 110, 0.15); border-color: var(--accent); color: var(--accent); }
+  .pulse-cell.today { border-color: var(--accent2); }
+
+  /* QUOTE */
+  .quote-block {
+    border-top: 1px solid var(--border);
+    padding: 24px 0 0;
+    margin-top: 16px;
+  }
+
+  .quote-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .quote-text strong {
+    font-style: normal;
+    color: var(--accent);
+    font-weight: 400;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    color: var(--dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--muted); }
+
+  .tab-content { display: none; padding-top: 20px; }
+  .tab-content.active { display: block; }
+
+  @media (max-width: 700px) {
+    .grid { grid-template-columns: 1fr; }
+    .status-bar { grid-template-columns: 1fr; }
+    .header { flex-direction: column; gap: 16px; }
+    .pulse-grid { grid-template-columns: repeat(7, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <h1>Arquiteto<br><em>Pessoal</em></h1>
+      <div class="tagline">Sistema estratégico · Anti-estagnação</div>
+    </div>
+    <div class="week-badge">
+      Semana
+      <span id="weekNum">—</span>
+      <div id="todayDate" style="font-size:0.65rem;font-family:'DM Mono',monospace;font-weight:400;color:var(--muted);margin-top:2px;"></div>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-item" style="--color:var(--accent);--fill:0%;" id="stat-corpo">
+      <div class="status-label">Corpo</div>
+      <div class="status-value" id="val-corpo">0/3</div>
+      <div class="status-sub">descargas físicas esta semana</div>
+    </div>
+    <div class="status-item" style="--color:var(--accent2);--fill:0%;" id="stat-criar">
+      <div class="status-label">Criação</div>
+      <div class="status-value" id="val-criar">0/2</div>
+      <div class="status-sub">ações construtivas esta semana</div>
+    </div>
+    <div class="status-item" style="--color:#b39ddb;--fill:0%;" id="stat-prazer">
+      <div class="status-label">Prazer</div>
+      <div class="status-value" id="val-prazer">0/1</div>
+      <div class="status-sub">momento intencional esta semana</div>
+    </div>
+  </div>
+
+  <!-- MAIN GRID -->
+  <div class="grid">
+
+    <!-- PILLAR TRACKER -->
+    <div class="card">
+      <div class="card-label">Progresso dos Pilares</div>
+      <div class="pillars">
+        <div class="pillar">
+          <div class="pillar-name" style="font-size:0.68rem;">Corpo</div>
+          <div class="pillar-bar"><div class="pillar-fill" id="bar-corpo" style="--w:0%;--c:var(--accent)"></div></div>
+          <div class="pillar-dots" id="dots-corpo">
+            <div class="dot" style="--c:var(--accent)" onclick="toggleDot(this,'corpo',0)"></div>
+            <div class="dot" style="--c:var(--accent)" onclick="toggleDot(this,'corpo',1)"></div>
+            <div class="dot" style="--c:var(--accent)" onclick="toggleDot(this,'corpo',2)"></div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-name" style="font-size:0.68rem;">Criação</div>
+          <div class="pillar-bar"><div class="pillar-fill" id="bar-criar" style="--w:0%;--c:var(--accent2)"></div></div>
+          <div class="pillar-dots" id="dots-criar">
+            <div class="dot" style="--c:var(--accent2)" onclick="toggleDot(this,'criar',0)"></div>
+            <div class="dot" style="--c:var(--accent2)" onclick="toggleDot(this,'criar',1)"></div>
+          </div>
+        </div>
+        <div class="pillar">
+          <div class="pillar-name" style="font-size:0.68rem;">Prazer</div>
+          <div class="pillar-bar"><div class="pillar-fill" id="bar-prazer" style="--w:0%;--c:#b39ddb"></div></div>
+          <div class="pillar-dots" id="dots-prazer">
+            <div class="dot" style="--c:#b39ddb" onclick="toggleDot(this,'prazer',0)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quote-block">
+        <div class="quote-text">Menos provar, mais <strong>construir</strong>.</div>
+      </div>
+    </div>
+
+    <!-- PULSE SEMANAL -->
+    <div class="card">
+      <div class="card-label">Pulso Semanal</div>
+      <div class="pulse-grid" id="pulseGrid"></div>
+      <div style="margin-top:16px;font-size:0.65rem;color:var(--muted);line-height:1.8;">
+        <div id="streakMsg">Clique nos dias para marcar registros.</div>
+      </div>
+    </div>
+
+    <!-- REGISTRO DIÁRIO -->
+    <div class="card grid-full">
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('log')">Registro Diário</button>
+        <button class="tab" onclick="switchTab('review')">Revisão de Domingo</button>
+        <button class="tab" onclick="switchTab('history')">Histórico</button>
+      </div>
+
+      <!-- LOG TAB -->
+      <div class="tab-content active" id="tab-log">
+        <div class="log-form">
+          <textarea class="log-textarea" id="logToday" placeholder="O que você construiu hoje? Seja específico — não sentimentos, atos concretos."></textarea>
+          <div class="log-actions">
+            <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeLog()">◆ Analisar com IA</button>
+            <button class="btn" onclick="saveLog()">Salvar</button>
+            <span id="saveMsg" style="font-size:0.65rem;color:var(--accent2);display:none;">✓ salvo</span>
+          </div>
+        </div>
+        <div class="ai-block" id="aiBlock" style="display:none;">
+          <div class="ai-label">Estrategista Pessoal</div>
+          <div class="ai-text" id="aiText"></div>
+        </div>
+      </div>
+
+      <!-- REVIEW TAB -->
+      <div class="tab-content" id="tab-review">
+        <div class="review-questions">
+          <div class="review-q">
+            <div class="review-q-text">Onde desperdicei energia esta semana?</div>
+            <input class="review-input" id="r1" placeholder="seja direto...">
+          </div>
+          <div class="review-q">
+            <div class="review-q-text">O que eu realmente construí (não só fiz)?</div>
+            <input class="review-input" id="r2" placeholder="resultados concretos...">
+          </div>
+          <div class="review-q">
+            <div class="review-q-text">O que ainda estou tentando provar — e para quem?</div>
+            <input class="review-input" id="r3" placeholder="honestidade...">
+          </div>
+          <div class="review-q">
+            <div class="review-q-text">Qual é a única coisa que, se eu fizer na próxima semana, muda o jogo?</div>
+            <input class="review-input" id="r4" placeholder="uma coisa só...">
+          </div>
+          <div class="log-actions">
+            <button class="btn btn-primary" onclick="analyzeReview()">◆ Diagnóstico Estratégico</button>
+          </div>
+          <div class="ai-block" id="aiBlockReview" style="display:none;">
+            <div class="ai-label">Diagnóstico da Semana</div>
+            <div class="ai-text" id="aiTextReview"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTORY TAB -->
+      <div class="tab-content" id="tab-history">
+        <div class="history-list" id="historyList">
+          <div style="font-size:0.7rem;color:var(--dim);padding:16px 0;">Nenhum registro ainda. Comece pelo Registro Diário.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPULSE SHIELD -->
+    <div class="card">
+      <div class="card-label">Escudo de Impulso</div>
+      <div class="shield">
+        <div class="shield-header">
+          <div class="shield-title">Regra das 24h</div>
+          <div class="shield-timer" id="shieldTimer">24:00:00</div>
+        </div>
+        <div class="shield-steps" id="shieldSteps">
+          <div class="shield-step"><div class="shield-step-num">1</div>Caminhar ou tomar banho</div>
+          <div class="shield-step"><div class="shield-step-num">2</div>Escrever o que está sentindo</div>
+          <div class="shield-step"><div class="shield-step-num">3</div>Comer algo antes de decidir</div>
+          <div class="shield-step"><div class="shield-step-num">4</div>Falar com alguém confiável</div>
+          <div class="shield-step"><div class="shield-step-num">5</div>Dormir. Decidir amanhã.</div>
+        </div>
+        <div style="margin-top:16px;">
+          <button class="btn" style="border-color:var(--accent3);color:var(--accent3);font-size:0.6rem;" onclick="startShield()">Ativar protocolo agora</button>
+        </div>
+        <div style="margin-top:12px;font-size:0.65rem;color:var(--dim);line-height:1.6;" id="shieldMsg">
+          Não confiar no impulso que promete paz destruindo o amanhã.
+        </div>
+      </div>
+    </div>
+
+    <!-- META SILENCIOSA -->
+    <div class="card">
+      <div class="card-label">Meta Profissional Silenciosa</div>
+      <div style="font-family:'Playfair Display',serif;font-size:1rem;font-style:italic;color:var(--accent);line-height:1.5;margin-bottom:20px;">
+        "Ser estrategicamente impossível de ignorar."
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px;" id="metaItems">
+        <div class="shield-step" id="m0" onclick="toggleMeta(0)"><div class="shield-step-num" style="border-color:var(--accent2);color:var(--accent2)">○</div><span style="font-size:0.68rem;">Projetos fortes em andamento</span></div>
+        <div class="shield-step" id="m1" onclick="toggleMeta(1)"><div class="shield-step-num" style="border-color:var(--accent2);color:var(--accent2)">○</div><span style="font-size:0.68rem;">Aulas com autoria real</span></div>
+        <div class="shield-step" id="m2" onclick="toggleMeta(2)"><div class="shield-step-num" style="border-color:var(--accent2);color:var(--accent2)">○</div><span style="font-size:0.68rem;">Menos desgaste improdutivo</span></div>
+        <div class="shield-step" id="m3" onclick="toggleMeta(3)"><div class="shield-step-num" style="border-color:var(--accent2);color:var(--accent2)">○</div><span style="font-size:0.68rem;">Conteúdo de autoridade publicado</span></div>
+        <div class="shield-step" id="m4" onclick="toggleMeta(4)"><div class="shield-step-num" style="border-color:var(--accent2);color:var(--accent2)">○</div><span style="font-size:0.68rem;">Marca das cucas avançando</span></div>
+      </div>
+    </div>
+
+  </div><!-- /grid -->
+
+</div><!-- /app -->
+
+<script>
+// ─── STATE ───────────────────────────────────────────
+let state = JSON.parse(localStorage.getItem('arquiteto_state') || '{}');
+if (!state.pillars) state.pillars = { corpo: [false,false,false], criar: [false,false], prazer: [false] };
+if (!state.logs) state.logs = [];
+if (!state.pulse) state.pulse = {};
+if (!state.meta) state.meta = [false,false,false,false,false];
+
+function save() { localStorage.setItem('arquiteto_state', JSON.stringify(state)); }
+
+// ─── INIT ─────────────────────────────────────────────
+window.onload = () => {
+  initDates();
+  renderPillars();
+  renderPulse();
+  renderHistory();
+  renderMeta();
+  updateStats();
+};
+
+function initDates() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), 0, 1);
+  const week = Math.ceil(((now - start) / 86400000 + start.getDay() + 1) / 7);
+  document.getElementById('weekNum').textContent = week;
+  document.getElementById('todayDate').textContent = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
+}
+
+// ─── PILLARS ─────────────────────────────────────────
+function toggleDot(el, pillar, idx) {
+  state.pillars[pillar][idx] = !state.pillars[pillar][idx];
+  save();
+  renderPillars();
+  updateStats();
+}
+
+function renderPillars() {
+  ['corpo','criar','prazer'].forEach(p => {
+    const dots = document.querySelectorAll(`#dots-${p} .dot`);
+    const filled = state.pillars[p].filter(Boolean).length;
+    const total = state.pillars[p].length;
+    dots.forEach((d,i) => {
+      d.classList.toggle('filled', state.pillars[p][i]);
+    });
+    const pct = (filled / total * 100) + '%';
+    document.getElementById(`bar-${p}`).style.setProperty('--w', pct);
+  });
+}
+
+function updateStats() {
+  const c = state.pillars.corpo.filter(Boolean).length;
+  const cr = state.pillars.criar.filter(Boolean).length;
+  const p = state.pillars.prazer.filter(Boolean).length;
+  document.getElementById('val-corpo').textContent = `${c}/3`;
+  document.getElementById('val-criar').textContent = `${cr}/2`;
+  document.getElementById('val-prazer').textContent = `${p}/1`;
+  document.getElementById('stat-corpo').style.setProperty('--fill', (c/3*100)+'%');
+  document.getElementById('stat-criar').style.setProperty('--fill', (cr/2*100)+'%');
+  document.getElementById('stat-prazer').style.setProperty('--fill', (p/1*100)+'%');
+}
+
+// ─── PULSE SEMANAL ────────────────────────────────────
+function renderPulse() {
+  const grid = document.getElementById('pulseGrid');
+  grid.innerHTML = '';
+  const days = ['D','S','T','Q','Q','S','S'];
+  const today = new Date();
+  const weekStart = new Date(today);
+  weekStart.setDate(today.getDate() - today.getDay());
+
+  days.forEach((d, i) => {
+    const date = new Date(weekStart);
+    date.setDate(weekStart.getDate() + i);
+    const key = date.toISOString().split('T')[0];
+    const isToday = date.toDateString() === today.toDateString();
+    const hasLog = !!state.pulse[key];
+
+    const col = document.createElement('div');
+    col.className = 'pulse-day';
+    col.innerHTML = `
+      <div class="pulse-day-label">${d}</div>
+      <div class="pulse-cell ${hasLog ? 'has-log' : ''} ${isToday ? 'today' : ''}" 
+           onclick="togglePulse('${key}',this)" title="${key}">
+        ${hasLog ? '✓' : (isToday ? '·' : '')}
+      </div>
+    `;
+    grid.appendChild(col);
+  });
+
+  const streak = calcStreak();
+  document.getElementById('streakMsg').textContent = streak > 1
+    ? `🔥 ${streak} dias seguidos de registro`
+    : 'Marque os dias que você fez registro.';
+}
+
+function togglePulse(key, el) {
+  state.pulse[key] = !state.pulse[key];
+  save();
+  renderPulse();
+}
+
+function calcStreak() {
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    if (state.pulse[key]) streak++;
+    else break;
+  }
+  return streak;
+}
+
+// ─── TABS ──────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => {
+    t.classList.toggle('active', ['log','review','history'][i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (tab === 'history') renderHistory();
+}
+
+// ─── LOG & AI ──────────────────────────────────────────
+function saveLog() {
+  const text = document.getElementById('logToday').value.trim();
+  if (!text) return;
+  const today = new Date().toISOString().split('T')[0];
+  state.logs.unshift({ date: today, text });
+  state.pulse[today] = true;
+  save();
+  document.getElementById('logToday').value = '';
+  const msg = document.getElementById('saveMsg');
+  msg.style.display = 'inline';
+  setTimeout(() => msg.style.display = 'none', 2000);
+  renderPulse();
+  renderHistory();
+}
+
+async function analyzeLog() {
+  const text = document.getElementById('logToday').value.trim();
+  if (!text) return;
+  const btn = document.getElementById('analyzeBtn');
+  btn.disabled = true;
+  const block = document.getElementById('aiBlock');
+  const aiText = document.getElementById('aiText');
+  block.style.display = 'block';
+  block.classList.add('loading');
+  aiText.textContent = '';
+
+  const recentLogs = state.logs.slice(0, 5).map(l => `[${l.date}] ${l.text}`).join('\n');
+  const pillarsCtx = `Corpo: ${state.pillars.corpo.filter(Boolean).length}/3, Criação: ${state.pillars.criar.filter(Boolean).length}/2, Prazer: ${state.pillars.prazer.filter(Boolean).length}/1`;
+
+  const prompt = `Você é um estrategista pessoal direto e honesto. Seu papel não é motivar — é diagnosticar e direcionar.
+
+CONTEXTO DO USUÁRIO:
+- Risco principal: estagnação (ficar só reagindo, sem construir)
+- Meta: "Menos provar, mais construir"
+- Objetivo profissional: ser estrategicamente impossível de ignorar
+- Pilares desta semana: ${pillarsCtx}
+
+REGISTROS RECENTES:
+${recentLogs || 'Nenhum ainda'}
+
+REGISTRO DE HOJE:
+${text}
+
+Analise em 3 partes (seja DIRETO, sem elogios vazios, sem rodeios):
+1. DIAGNÓSTICO (1 linha): O que esse registro revela sobre o padrão atual?
+2. PONTO CEGO (1-2 linhas): O que está faltando ou o que está sendo evitado?
+3. PRÓXIMO MOVIMENTO (1 linha específica): Uma ação concreta para amanhã.
+
+Formato: texto corrido, sem emojis, sem cabeçalhos. Máximo 5 linhas no total.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    block.classList.remove('loading');
+    const reply = data.content?.[0]?.text || 'Erro ao obter análise.';
+    typeText(aiText, reply);
+    // Save log with analysis
+    const today = new Date().toISOString().split('T')[0];
+    state.logs.unshift({ date: today, text, analysis: reply });
+    state.pulse[today] = true;
+    save();
+    renderPulse();
+    renderHistory();
+    document.getElementById('logToday').value = '';
+  } catch(e) {
+    block.classList.remove('loading');
+    aiText.textContent = 'Erro de conexão. Salve o registro manualmente.';
+  }
+  btn.disabled = false;
+}
+
+async function analyzeReview() {
+  const r1 = document.getElementById('r1').value.trim();
+  const r2 = document.getElementById('r2').value.trim();
+  const r3 = document.getElementById('r3').value.trim();
+  const r4 = document.getElementById('r4').value.trim();
+  if (!r2 && !r4) return;
+
+  const block = document.getElementById('aiBlockReview');
+  const aiText = document.getElementById('aiTextReview');
+  block.style.display = 'block';
+  block.classList.add('loading');
+  aiText.textContent = '';
+
+  const prompt = `Você é um estrategista pessoal. Faça um diagnóstico semanal honesto e estratégico.
+
+REVISÃO DE DOMINGO:
+- Onde desperdicei energia: ${r1 || 'não respondido'}
+- O que realmente construí: ${r2 || 'não respondido'}
+- O que ainda estou tentando provar: ${r3 || 'não respondido'}
+- A única coisa que muda o jogo: ${r4 || 'não respondido'}
+
+CONTEXTO: Risco de estagnação. Meta: construir presença, não provar valor.
+
+Diagnóstico em 3 partes diretas:
+1. PADRÃO DA SEMANA: O que esses dados mostram sobre o modo de operar?
+2. ALERTA: Qual é o maior risco para a próxima semana?
+3. MISSÃO DA SEMANA: Uma frase-missão específica para os próximos 7 dias.
+
+Sem elogios. Sem rodeios. Máximo 6 linhas.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    block.classList.remove('loading');
+    typeText(aiText, data.content?.[0]?.text || 'Erro.');
+  } catch(e) {
+    block.classList.remove('loading');
+    aiText.textContent = 'Erro de conexão.';
+  }
+}
+
+function typeText(el, text) {
+  el.textContent = '';
+  let i = 0;
+  const interval = setInterval(() => {
+    el.textContent += text[i];
+    i++;
+    if (i >= text.length) clearInterval(interval);
+  }, 18);
+}
+
+// ─── HISTORY ──────────────────────────────────────────
+function renderHistory() {
+  const list = document.getElementById('historyList');
+  if (!state.logs.length) {
+    list.innerHTML = '<div style="font-size:0.7rem;color:var(--dim);padding:16px 0;">Nenhum registro ainda. Comece pelo Registro Diário.</div>';
+    return;
+  }
+  list.innerHTML = state.logs.map(l => `
+    <div class="history-item">
+      <div class="history-date">${l.date}</div>
+      <div>
+        <div class="history-text">${l.text}</div>
+        ${l.analysis ? `<div style="font-size:0.65rem;color:var(--muted);margin-top:6px;line-height:1.6;border-left:2px solid var(--accent);padding-left:8px;">${l.analysis.substring(0,120)}${l.analysis.length > 120 ? '…' : ''}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── SHIELD ───────────────────────────────────────────
+let shieldInterval = null;
+
+function startShield() {
+  const timer = document.getElementById('shieldTimer');
+  const msg = document.getElementById('shieldMsg');
+  const steps = document.querySelectorAll('.shield-step');
+  timer.style.display = 'block';
+  msg.textContent = 'Protocolo ativo. Siga os passos antes de qualquer decisão.';
+
+  let seconds = 86400; // 24h
+  clearInterval(shieldInterval);
+  shieldInterval = setInterval(() => {
+    seconds--;
+    const h = Math.floor(seconds / 3600).toString().padStart(2,'0');
+    const m = Math.floor((seconds % 3600) / 60).toString().padStart(2,'0');
+    const s = (seconds % 60).toString().padStart(2,'0');
+    timer.textContent = `${h}:${m}:${s}`;
+    // Highlight step by progress
+    const elapsed = 86400 - seconds;
+    steps.forEach((step, i) => {
+      step.classList.toggle('active', elapsed > i * 800);
+    });
+    if (seconds <= 0) {
+      clearInterval(shieldInterval);
+      timer.textContent = '00:00:00';
+      msg.textContent = '24h cumpridas. Agora você pode decidir com clareza.';
+    }
+  }, 1000);
+}
+
+// ─── META ─────────────────────────────────────────────
+function toggleMeta(idx) {
+  state.meta[idx] = !state.meta[idx];
+  save();
+  renderMeta();
+}
+
+function renderMeta() {
+  state.meta.forEach((v, i) => {
+    const el = document.getElementById('m' + i);
+    if (!el) return;
+    const num = el.querySelector('.shield-step-num');
+    num.textContent = v ? '✓' : '○';
+    el.style.color = v ? 'var(--accent2)' : '';
+    num.style.borderColor = v ? 'var(--accent2)' : '';
+  });
+}
+</script>
+</body>
+</html>
